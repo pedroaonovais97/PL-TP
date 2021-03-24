@@ -116,7 +116,7 @@ sorted_unome_secolo19 = dict(sorted(seculo19Ultimo.items(), key=lambda p:p[1],re
 sorted_unome_secolo20 = dict(sorted(seculo20Ultimo.items(), key=lambda p:p[1],reverse = True))
 anosList.sort()
 
-print('Intervalos sem inscricoes')
+print('INTERVALOS SEM INSCRICOES:\n')
 i = 0
 
 while i < len(anosList)-1:
@@ -125,10 +125,13 @@ while i < len(anosList)-1:
 		while(anosList[i] + 1 < anosList[i+1]):
 			l.append(anosList[i] + 1)
 			anosList[i] += 1
-		print(l)	
+		if len(l) > 1:	
+			print(l[0],'-',l[-1])
+		else:
+			print(l[0])		
 	i+=1
 
-print('ANOS:')			
+print('\n\nANOS:')			
 print(sorted_anos)
 print('\n\nSECULOS:')
 print(sorted_seculos)
