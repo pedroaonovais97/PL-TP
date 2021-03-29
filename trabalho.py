@@ -16,7 +16,7 @@ seculo17Ultimo = {}
 seculo18Ultimo = {}
 seculo19Ultimo = {}
 seculo20Ultimo = {}
-parentesEl = [[]]
+parentesEl = {}
 global ano
 global sec
 global anoList
@@ -135,12 +135,13 @@ def func():
 							else:
 								seculo20Ultimo[ultimonome] = 1
 					if g == '<obs>':
-						print("Nome: ", completo)
-						scdsearch = re.split(r'\.',m.group(5))
+						#print("Nome: ", completo, "pr: ", pr)
+						#scdsearch = re.split(r'\.',m.group(5))
 						#scddoc = re.search(r'Doc\.danificado',m.group(5))
-						print("Obs: ", m.group(5))
-						familia = re.findall(r'(?!Doc\.danificado\.| )[\w\ ]*(?:,Ti. .aterno\.|,Irma.\.|,Prim. .aterno\.|,Sobrinh. .aterno\.) Proc\.\d+\.',m.group(5))
-						print('FAMILIA: ',familia)
+						#print("Obs: ", m.group(5))
+						familia = re.findall(r'(?!Doc\.danificado\.| )[\w\ ]*(?:,Ti.(?: .aterno)*\.|,Irma.\.|,Prim.(?: .aterno)*\.|,Sobrinh.(?: .aterno)*\.)(?: Proc\.\d+\.)*',m.group(5))
+						parentesEl[pr] = familia
+						#print('FAMILIA: ',familia)
 						#print('PESQUISA: ',scdsearch)
 						'''
 						if scddoc:
@@ -290,17 +291,45 @@ def exB():
 
 	print('\n\n',anosList)
 
+def exC():
+	fam = 0
+	irmao = 0
+	tio = 0
+	primo = 0
+	for nome,familia in parentesEl.items():
+		if familia:
+			#print(familia)
+			fam += 1
+		for frase in familia:
+			regIrm = re.search(r'Irma',frase)
+			if regIrm:
+				irmao += 1
+			regTio = re.search(r'Tio',frase)
+			if regTio:
+				tio += 1
+			regPri = re.search(r'Primo',frase)
+			if regPri:
+				#print("ID:", nome, " Primo: ", frase)
+				primo += 1
+
+
+	print("Número de candidatos com parentes eclesiásticos: ", fam)
+	print("Número de Irmãos eclesiásticos: ", irmao)
+	print("Número de Tios eclesiásticos: ", tio)
+	print("Número de Primos eclesiásticos: ", primo)
 
 def menu():
     print("**Processador de Pessoas listadas nos Róis de Confessados**")
     print()
 
-    choice = input("A: Please Register \nB: Login \nQ: Logout\nPor favor escolha uma opção:")
+    choice = input("A: exA \nB: exB\nC: exC \nQ: Logout\nPor favor escolha uma opção:")
 
     if choice == "A" or choice =="a":
         exA()
     elif choice == "B" or choice =="b":
         exB()
+    elif choice == "C" or choice =="c":
+        exC()
     elif choice=="Q" or choice=="q":
         sys.exit
     else:
