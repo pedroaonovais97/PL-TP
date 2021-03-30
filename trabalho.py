@@ -2,7 +2,7 @@ import re
 import sys
 
 anosList = []
-processos = []
+processos = {}
 anos = {}
 seculos = {}
 pnome = {}
@@ -24,9 +24,78 @@ global primeironome
 global ultimonome
 global completo
 global pr
-
-
 global contador
+
+def saveInfo(anoList, ano, sec, primeironome, ultimonome):
+
+	if anoList in anosList:
+		pass
+	else:
+		anosList.append(anoList)
+
+	if ano in anos:
+		anos[ano] += 1
+	else:
+		anos[ano] = 1
+
+	if sec in seculos:
+		seculos[sec] += 1
+	else:
+		seculos[sec] = 1
+
+	if primeironome in pnome:
+		pnome[primeironome] += 1
+	else:
+		pnome[primeironome] = 1
+
+	if ultimonome in unome:
+		unome[ultimonome] += 1
+	else:
+		unome[ultimonome] = 1
+
+	if sec == 17 :
+		if primeironome in seculo17:
+			seculo17[primeironome] += 1
+		else:
+			seculo17[primeironome] = 1
+
+		if ultimonome in seculo17Ultimo:
+			seculo17Ultimo[ultimonome] += 1
+		else:
+			seculo17Ultimo[ultimonome] = 1		
+
+	if sec == 18 :
+		if primeironome in seculo18:
+			seculo18[primeironome] += 1
+		else:
+			seculo18[primeironome] = 1
+
+		if ultimonome in seculo18Ultimo:
+			seculo18Ultimo[ultimonome] += 1
+		else:
+			seculo18Ultimo[ultimonome] = 1	
+
+	if sec == 19 :
+		if primeironome in seculo19:
+			seculo19[primeironome] += 1
+		else:
+			seculo19[primeironome] = 1
+
+		if ultimonome in seculo19Ultimo:
+			seculo19Ultimo[ultimonome] += 1
+		else:
+			seculo19Ultimo[ultimonome] = 1	
+
+	if sec == 20 :
+		if primeironome in seculo20:
+			seculo20[primeironome] += 1
+		else:
+			seculo20[primeironome] = 1
+	
+		if ultimonome in seculo20Ultimo:
+			seculo20Ultimo[ultimonome] += 1
+		else:
+			seculo20Ultimo[ultimonome] = 1
 
 
 def func():
@@ -34,182 +103,49 @@ def func():
 	next(f)
 
 	contador = 1
+	iguais = 0
+	anoList = sec = ano = None
+	primeironome = ultimonome = None
 
 	for line in f:
-		m = re.search(r'(<obs/>)|(<processo id="([0-9]+)">)|(<[a-z]+>)?([^<]*)(</[a-z]+>)?',line.strip())
+		m = re.search(r'(<obs\/>)|(<processo id="([0-9]+)">)|(<[a-z]+>)?([^<]*)(<\/[a-z]+>)?',line.strip())
 		if m.group(4) == '<processos>' or m.group(6) == '</processos>':
 			pass
 		if "processo id" in str(m.group(2)):
-			pr = m.group(3)
-			if pr in processos:
-				next(f)
-				next(f)
-				next(f)
-				next(f)
-				next(f)
-				next(f)
-				next(f)
+			pr = m.group(3)		
+		#print(contador,'->',m.groups())
+		contador += 1	
+		for g in m.groups():
+			if g is None:
+				pass	
 			else:
-				processos.append(pr)
-		else:
-			#print(contador,'->',m.groups())
-			contador += 1	
-			for g in m.groups():
-				if g is None:
-					pass	
-				else:
-					if g == '<data>':
+				if g == '<data>':
+					ano = re.split(r'-',m.group(5))[0]
+					sec = int(ano[0]+(ano[1])) + 1
+					anoList = int(ano)				
 
-						ano = re.split(r'-',m.group(5))[0]
-						sec = int(ano[0]+(ano[1])) + 1
-						anoList = int(ano)
+				if g == '<nome>':
+					primeironome = 	re.split(r' ',m.group(5))[0]
+					ultimonome = re.split(r' ',m.group(5))[-1]
+					completo = m.group(5)	
 
-						if anoList in anosList:
-							pass
+					if pr in processos and completo in processos[pr]:
+						iguais += 1
+					else:
+						nomecompleto[pr] = completo
+						if pr in processos:
+							lista = processos[pr]
 						else:
-							anosList.append(anoList)	
+							lista = []
+						lista.append(completo)
+						processos[pr] = lista
+						saveInfo(anoList, ano, sec, primeironome, ultimonome)
 
-						if ano in anos:
-							anos[ano] += 1
-						else:
-							anos[ano] = 1
-
-						if sec in seculos:
-							seculos[sec] += 1
-						else:
-							seculos[sec] = 1				
-
-					if g == '<nome>':
-						primeironome = 	re.split(r' ',m.group(5))[0]
-						ultimonome = re.split(r' ',m.group(5))[-1]
-						completo = m.group(5)	
-						
-						if primeironome in pnome:
-							pnome[primeironome] += 1
-						else:
-							pnome[primeironome] = 1
-
-						if ultimonome in unome:
-							unome[ultimonome] += 1
-						else:
-							unome[ultimonome] = 1
-
-						if sec == 17 :
-							if primeironome in seculo17:
-								seculo17[primeironome] += 1
-							else:
-								seculo17[primeironome] = 1
-
-							if ultimonome in seculo17Ultimo:
-								seculo17Ultimo[ultimonome] += 1
-							else:
-								seculo17Ultimo[ultimonome] = 1		
-						if sec == 18 :
-							if primeironome in seculo18:
-								seculo18[primeironome] += 1
-							else:
-								seculo18[primeironome] = 1
-
-							if ultimonome in seculo18Ultimo:
-								seculo18Ultimo[ultimonome] += 1
-							else:
-								seculo18Ultimo[ultimonome] = 1	
-						if sec == 19 :
-							if primeironome in seculo19:
-								seculo19[primeironome] += 1
-							else:
-								seculo19[primeironome] = 1
-
-							if ultimonome in seculo19Ultimo:
-								seculo19Ultimo[ultimonome] += 1
-							else:
-								seculo19Ultimo[ultimonome] = 1	
-						if sec == 20 :
-							if primeironome in seculo20:
-								seculo20[primeironome] += 1
-							else:
-								seculo20[primeironome] = 1
-
-							if ultimonome in seculo20Ultimo:
-								seculo20Ultimo[ultimonome] += 1
-							else:
-								seculo20Ultimo[ultimonome] = 1
-					if g == '<obs>':
-						#print("Nome: ", completo, "pr: ", pr)
-						#scdsearch = re.split(r'\.',m.group(5))
-						#scddoc = re.search(r'Doc\.danificado',m.group(5))
-						#print("Obs: ", m.group(5))
-						familia = re.findall(r'(?!Doc\.danificado\.| )[\w\ ]*(?:,Ti.(?: .aterno)*\.|,Irma.\.|,Prim.(?: .aterno)*\.|,Sobrinh.(?: .aterno)*\.)(?: Proc\.\d+\.)*',m.group(5))
-						parentesEl[pr] = familia
-						#print('FAMILIA: ',familia)
-						#print('PESQUISA: ',scdsearch)
-						'''
-						if scddoc:
-							print('DOC DAN!!!')
-							
-							if anos[ano] > 1:
-								anos[ano] -= 1
-							else:
-								del anos[ano]
-							
-							if seculos[sec] > 1:
-								seculos[sec] -= 1
-							else:
-								del seculos[sec]
-
-							if pnome[primeironome] > 1:
-								pnome[primeironome] -= 1
-							else:
-								del pnome[primeironome]
-
-							if unome[ultimonome] > 1:
-								unome[ultimonome] -= 1
-							else:
-								unome[ultimonome] = 1
-
-							if sec == 17 :
-								if seculo17[primeironome] > 1:
-									seculo17[primeironome] -= 1
-								else:
-									del seculo17[primeironome]
-
-								if seculo17Ultimo[ultimonome] > 1:
-									seculo17Ultimo[ultimonome] -= 1
-								else:
-									del seculo17Ultimo[ultimonome]		
-							if sec == 18 :
-								if seculo18[primeironome] > 1:
-									seculo18[primeironome] -= 1
-								else:
-									del seculo18[primeironome]
-
-								if seculo18Ultimo[ultimonome] > 1:
-									seculo18Ultimo[ultimonome] -= 1
-								else:
-									del seculo18Ultimo[ultimonome]	
-							if sec == 19 :
-								if seculo19[primeironome] > 1:
-									seculo19[primeironome] -= 1
-								else:
-									del seculo19[primeironome]
-
-								if seculo19Ultimo[ultimonome] > 1:
-									seculo19Ultimo[ultimonome] -= 1
-								else:
-									del seculo19Ultimo[ultimonome]		
-							if sec == 20 :
-								if seculo20[primeironome] > 1:
-									seculo20[primeironome] -= 1
-								else:
-									del seculo20[primeironome]
-
-								if seculo20Ultimo[ultimonome] > 1:
-									seculo20Ultimo[ultimonome] -= 1
-								else:
-									del seculo20Ultimo[ultimonome]'''
-						#else:
-						
-
+				if g == '<obs>':
+					familia = re.findall(r'(?!Doc\.danificado\.| )[\w\ ]*(?:,Ti.(?: .aterno)*\.|,Irma.\.|,Prim.(?: .aterno)*\.|,Sobrinh.(?: .aterno)*\.)(?: *Proc\.\d+\.)*',line) 
+					parentesEl[pr+completo] = familia
+			
+	#print("Iguais: ", iguais)			
 	f.close()
 
 
@@ -244,6 +180,8 @@ def exA():
 	print('\n\nSECULOS:')
 	print(sorted_seculos)
 	print(len(sorted_seculos))
+
+	menu()
 
 
 def exB():
@@ -291,6 +229,8 @@ def exB():
 
 	print('\n\n',anosList)
 
+	menu()
+
 def exC():
 	fam = 0
 	irmao = 0
@@ -309,7 +249,6 @@ def exC():
 				tio += 1
 			regPri = re.search(r'Primo',frase)
 			if regPri:
-				#print("ID:", nome, " Primo: ", frase)
 				primo += 1
 
 
@@ -317,6 +256,8 @@ def exC():
 	print("Número de Irmãos eclesiásticos: ", irmao)
 	print("Número de Tios eclesiásticos: ", tio)
 	print("Número de Primos eclesiásticos: ", primo)
+
+	menu()
 
 def menu():
     print("**Processador de Pessoas listadas nos Róis de Confessados**")
