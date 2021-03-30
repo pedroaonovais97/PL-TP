@@ -113,8 +113,8 @@ def func():
 			pass
 		if "processo id" in str(m.group(2)):
 			pr = m.group(3)		
-		#print(contador,'->',m.groups())
 		contador += 1	
+		#print(contador,'->',m.groups())
 		for g in m.groups():
 			if g is None:
 				pass	
@@ -142,10 +142,23 @@ def func():
 						saveInfo(anoList, ano, sec, primeironome, ultimonome)
 
 				if g == '<obs>':
-					familia = re.findall(r'(?!Doc\.danificado\.| )[\w\ ]*(?:,Ti.(?: .aterno)*\.|,Irma.\.|,Prim.(?: .aterno)*\.|,Sobrinh.(?: .aterno)*\.)(?: *Proc\.\d+\.)*',line) 
-					parentesEl[pr+completo] = familia
-			
-	#print("Iguais: ", iguais)			
+					obsClose = re.search(r'(<\/obs>)',line)
+					if obsClose:
+						familia = re.findall(r'(?!Doc\.danificado\.| )[,\w\ ]*(?:,Ti.s?(?: .aternos?|\.)*\.|,Irmaos?(?: .aternos?\.|\.|\.)|,Prim.s?(?: .aternos?)*\.|,Sobrinh.(?: .aterno)*\.)(?: *Proc\.\d+\.)*',line) 
+						if familia:
+							parentesEl[pr+completo] = familia
+					else:
+						auxF = next(f)
+						line = line + auxF
+						obsClose = re.search(r'(<\/obs>)',auxF)
+						while obsClose == None:
+							auxF = next(f)
+							obsClose = re.search(r'(<\/obs>)',auxF)
+							line = line + auxF
+						line = re.sub(r'\n +',' ',line)
+						familia = re.findall(r'(?!Doc\.danificado\.| )[,\w\ ]*(?:,Ti.s?(?: .aternos?|\.)*\.|,Irmaos?(?: .aternos?\.|\.|\.)|,Prim.s?(?: .aternos?)*\.|,Sobrinh.(?: .aterno)*\.)(?: *Proc\.\d+\.)*',line) 
+						if familia:
+							parentesEl[pr+completo] = familia			
 	f.close()
 
 
@@ -236,19 +249,32 @@ def exC():
 	irmao = 0
 	tio = 0
 	primo = 0
+	regex = r','
 	for nome,familia in parentesEl.items():
 		if familia:
 			#print(familia)
 			fam += 1
 		for frase in familia:
-			regIrm = re.search(r'Irma',frase)
-			if regIrm:
+			
+			regIrmaos = re.search(r'Irmaos',frase)
+			regIrmao = re.search(r'Irmao',frase)
+			if regIrmaos:
+				irmao += len(re.findall(regex,frase)) + 1
+			elif regIrmao:
 				irmao += 1
+			
+			regTios = re.search(r'Tios',frase)
 			regTio = re.search(r'Tio',frase)
-			if regTio:
+			if regTios:
+				tio += len(re.findall(regex,frase)) + 1
+			elif regTio:
 				tio += 1
+			
+			regPris = re.search(r'Primos',frase)
 			regPri = re.search(r'Primo',frase)
-			if regPri:
+			if regPris:
+				primo += len(re.findall(regex,frase)) + 1
+			elif regPri:
 				primo += 1
 
 
@@ -263,7 +289,7 @@ def menu():
     print("**Processador de Pessoas listadas nos Róis de Confessados**")
     print()
 
-    choice = input("A: exA \nB: exB\nC: exC \nQ: Logout\nPor favor escolha uma opção:")
+    choice = input("A: exA \nB: exB\nC: exC \nS: Sair\nPor favor escolha uma opção:")
 
     if choice == "A" or choice =="a":
         exA()
@@ -271,11 +297,10 @@ def menu():
         exB()
     elif choice == "C" or choice =="c":
         exC()
-    elif choice=="Q" or choice=="q":
+    elif choice=="S" or choice=="s":
         sys.exit
     else:
-        print("You must only select either A or B")
-        print("Please try again")
+        print("Opção inválida")
         menu()			 		
 
 main()
