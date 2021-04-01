@@ -1,6 +1,7 @@
 import re
 import sys
 
+listagem = []
 anosList = []
 processos = {}
 anos = {}
@@ -17,6 +18,8 @@ seculo18Ultimo = {}
 seculo19Ultimo = {}
 seculo20Ultimo = {}
 parentesEl = {}
+maesefilhos = {}
+
 global ano
 global sec
 global anoList
@@ -112,7 +115,9 @@ def func():
 		if m.group(4) == '<processos>' or m.group(6) == '</processos>':
 			pass
 		if "processo id" in str(m.group(2)):
-			pr = m.group(3)		
+			pr = m.group(3)
+			listagem.append(pr)
+
 		contador += 1	
 		#print(contador,'->',m.groups())
 		for g in m.groups():
@@ -140,25 +145,97 @@ def func():
 						lista.append(completo)
 						processos[pr] = lista
 						saveInfo(anoList, ano, sec, primeironome, ultimonome)
-
+				if g == '<mae>':
+					mae = m.group(5)
+				if g == '<pai>':
+					pai = m.group(5)
 				if g == '<obs>':
+					irmaosMat = []
+					irmaosPat = []
 					obsClose = re.search(r'(<\/obs>)',line)
 					if obsClose:
-						familia = re.findall(r'(?!Doc\.danificado\.| )[,\w\ ]*(?:,Ti.s?(?: .aternos?|\.)*\.|,Irmaos?(?: .aternos?\.|\.|\.)|,Prim.s?(?: .aternos?)*\.|,Sobrinh.(?: .aterno)*\.)(?: *Proc\.\d+\.)*',line) 
+						familia = re.findall(r'(?!Doc\.danificado\.| )[,\w\ ]*(?:,Ti.s?(?: .aternos?|\.)*\.|,Irmaos?(?: .aternos?\.|\.|\.)|,Prim.s?(?: .aternos?)*\.|,Sobrinh.(?: .aterno)*\.)(?: *Proc\.\d+\.)*',line)
+						irmaoMaterno = re.findall(r'[a-zA-Z ]+,Irmao Materno',line)
+						irmaoPaterno = re.findall(r'[a-zA-Z ]+,Irmao Paterno',line)
+						irmaosMaternos = re.findall(r'[a-zA-Z ]+,Irmaos Maternos',line) 
 						if familia:
 							parentesEl[pr+completo] = familia
+						if irmaoMaterno:
+							for i in irmaoMaterno:
+								i.strip()
+								irmao = re.split(r',',i)[0]
+								if irmao[0] == ' ':
+									irmaosMat.append(irmao[1:])
+								else:
+									irmaosMat.append(irmao)
+						if irmaosMaternos:
+							print(irmaosMaternos)
+							for i in irmaosMaternos:
+								irmoum = re.split(r',',i)[0]
+								irmoums = re.split(r' e ',irmoum)
+								for i in irmoums:
+									if i[0] == ' ':
+										irmaosMat.append(i[1:])
+									else:
+										irmaosMat.append(i)
+
+
+						if irmaoPaterno:
+							for i in irmaoPaterno:
+								i.strip()
+								irmao = re.split(r',',i)[0]
+								if irmao[0] == ' ':
+									irmaosPat.append(irmao[1:])
+								else:
+									irmaosPat.append(irmao)	
 					else:
 						auxF = next(f)
 						line = line + auxF
 						obsClose = re.search(r'(<\/obs>)',auxF)
+						
 						while obsClose == None:
 							auxF = next(f)
 							obsClose = re.search(r'(<\/obs>)',auxF)
 							line = line + auxF
+
 						line = re.sub(r'\n +',' ',line)
 						familia = re.findall(r'(?!Doc\.danificado\.| )[,\w\ ]*(?:,Ti.s?(?: .aternos?|\.)*\.|,Irmaos?(?: .aternos?\.|\.|\.)|,Prim.s?(?: .aternos?)*\.|,Sobrinh.(?: .aterno)*\.)(?: *Proc\.\d+\.)*',line) 
+						irmaoMaterno = re.findall(r'[a-zA-Z ]+,Irmao Materno',line)
+						irmaoPaterno = re.findall(r'[a-zA-Z ]+,Irmao Paterno',line)
+						irmaosMaternos = re.findall(r'[a-zA-Z ]+,Irmaos Maternos',line)
+
 						if familia:
-							parentesEl[pr+completo] = familia			
+							parentesEl[pr+completo] = familia
+
+						if irmaoMaterno:
+							for i in irmaoMaterno:
+								irmao = re.split(r',',i)[0]
+								if irmao[0] == ' ':
+									irmaosMat.append(irmao[1:])
+								else:
+									irmaosMat.append(irmao)
+
+						if irmaosMaternos:
+							print(irmaosMaternos)
+							for i in irmaosMaternos:
+								irmoum = re.split(r',',i)[0]
+								irmoums = re.split(r' e ',irmoum)
+								for i in irmoums:
+									if i[0] == ' ':
+										irmaosMat.append(i[1:])
+									else:
+										irmaosMat.append(i)	
+
+						if irmaoPaterno:
+							for i in irmaoPaterno:
+								i.strip()
+								irmao = re.split(r',',i)[0]
+								if irmao[0] == ' ':
+									irmaosPat.append(irmao[1:])
+								else:
+									irmaosPat.append(irmao)
+
+										
 	f.close()
 
 
@@ -252,7 +329,7 @@ def exC():
 	regex = r','
 	for nome,familia in parentesEl.items():
 		if familia:
-			#print(familia)
+			print(familia)
 			fam += 1
 		for frase in familia:
 			
@@ -277,11 +354,12 @@ def exC():
 			elif regPri:
 				primo += 1
 
-
 	print("Número de candidatos com parentes eclesiásticos: ", fam)
 	print("Número de Irmãos eclesiásticos: ", irmao)
 	print("Número de Tios eclesiásticos: ", tio)
 	print("Número de Primos eclesiásticos: ", primo)
+
+def exD():
 
 	menu()
 
