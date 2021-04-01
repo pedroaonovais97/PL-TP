@@ -19,6 +19,7 @@ seculo19Ultimo = {}
 seculo20Ultimo = {}
 parentesEl = {}
 maesefilhos = {}
+paisefilhos = {}
 
 global ano
 global sec
@@ -147,6 +148,7 @@ def func():
 						saveInfo(anoList, ano, sec, primeironome, ultimonome)
 				if g == '<mae>':
 					mae = m.group(5)
+
 				if g == '<pai>':
 					pai = m.group(5)
 				if g == '<obs>':
@@ -157,9 +159,12 @@ def func():
 						familia = re.findall(r'(?!Doc\.danificado\.| )[,\w\ ]*(?:,Ti.s?(?: .aternos?|\.)*\.|,Irmaos?(?: .aternos?\.|\.|\.)|,Prim.s?(?: .aternos?)*\.|,Sobrinh.(?: .aterno)*\.)(?: *Proc\.\d+\.)*',line)
 						irmaoMaterno = re.findall(r'[a-zA-Z ]+,Irmao Materno',line)
 						irmaoPaterno = re.findall(r'[a-zA-Z ]+,Irmao Paterno',line)
-						irmaosMaternos = re.findall(r'[a-zA-Z ]+,Irmaos Maternos',line) 
+						irmaosMaternos = re.findall(r'[a-zA-Z\, ]+,Irmaos Maternos',line) 
+						irmaosPaternos = re.findall(r'[a-zA-Z\, ]+,Irmaos Paternos',line)
+
 						if familia:
 							parentesEl[pr+completo] = familia
+
 						if irmaoMaterno:
 							for i in irmaoMaterno:
 								i.strip()
@@ -168,17 +173,28 @@ def func():
 									irmaosMat.append(irmao[1:])
 								else:
 									irmaosMat.append(irmao)
-						if irmaosMaternos:
-							print(irmaosMaternos)
-							for i in irmaosMaternos:
-								irmoum = re.split(r',',i)[0]
-								irmoums = re.split(r' e ',irmoum)
-								for i in irmoums:
-									if i[0] == ' ':
-										irmaosMat.append(i[1:])
-									else:
-										irmaosMat.append(i)
 
+							if mae in maesefilhos:
+								maesefilhos[mae].extend(irmaosMat)
+							else:
+								maesefilhos[mae] = irmaosMat		
+
+						if irmaosMaternos:
+							semvirgulas = re.split(r',',irmaosMaternos[0])
+							tds = []
+							for i in semvirgulas:
+								semvirgulaseseme = re.split(r' e ',i)
+								for i in semvirgulaseseme:
+									if i[0] == ' ':
+										tds.append(i[1:])
+									else:
+										tds.append(i)
+							tds.pop()
+							irmaosMat.extend(tds)
+							if mae in maesefilhos:
+								maesefilhos[mae].extend(irmaosMat)
+							else:
+								maesefilhos[mae] = irmaosMat
 
 						if irmaoPaterno:
 							for i in irmaoPaterno:
@@ -188,21 +204,45 @@ def func():
 									irmaosPat.append(irmao[1:])
 								else:
 									irmaosPat.append(irmao)	
+
+						if irmaosPaternos:
+							semvirgulas = re.split(r',',irmaosPaternos[0])
+							tds = []
+							for i in semvirgulas:
+								semvirgulaseseme = re.split(r' e ',i)
+								for i in semvirgulaseseme:
+									if i[0] == ' ':
+										tds.append(i[1:])
+									else:
+										tds.append(i)
+							tds.pop()
+							irmaosPat.extend(tds)
+							if pai in paisefilhos:
+								paisefilhos[pai].extend(irmaosPat)
+							else:
+								paisefilhos[pai] = irmaosPat
+							
+							
+								
 					else:
 						auxF = next(f)
 						line = line + auxF
 						obsClose = re.search(r'(<\/obs>)',auxF)
-						
+
 						while obsClose == None:
 							auxF = next(f)
 							obsClose = re.search(r'(<\/obs>)',auxF)
 							line = line + auxF
 
 						line = re.sub(r'\n +',' ',line)
-						familia = re.findall(r'(?!Doc\.danificado\.| )[,\w\ ]*(?:,Ti.s?(?: .aternos?|\.)*\.|,Irmaos?(?: .aternos?\.|\.|\.)|,Prim.s?(?: .aternos?)*\.|,Sobrinh.(?: .aterno)*\.)(?: *Proc\.\d+\.)*',line) 
+						familia = re.findall(r'(?!Doc\.danificado\.| )[,\w\ ]*(?:,Ti.s?(?: .aternos?|\.)*\.|,Irmaos?(?: .aternos?\.|\.|\.)|,Prim.s?(?: .aternos?)*\.|,Sobrinh.(?: .aterno)*\.)(?: *Proc\.\d+\.)*',line)
+
 						irmaoMaterno = re.findall(r'[a-zA-Z ]+,Irmao Materno',line)
 						irmaoPaterno = re.findall(r'[a-zA-Z ]+,Irmao Paterno',line)
-						irmaosMaternos = re.findall(r'[a-zA-Z ]+,Irmaos Maternos',line)
+						irmaosMaternos = re.findall(r'[a-zA-Z\, ]+,Irmaos Maternos',line)
+						irmaosPaternos = re.findall(r'[a-zA-Z\, ]+,Irmaos Paternos',line)
+						irmao = re.findall(r'[a-zA-Z ]+,Irmao\.',line)
+						irmaos = re.findall(r'[a-zA-Z ]+,Irmaos\.',line)
 
 						if familia:
 							parentesEl[pr+completo] = familia
@@ -214,18 +254,28 @@ def func():
 									irmaosMat.append(irmao[1:])
 								else:
 									irmaosMat.append(irmao)
+							if mae in maesefilhos:
+								maesefilhos[mae].extend(irmaosMat)
+							else:
+								maesefilhos[mae] = irmaosMat		
 
 						if irmaosMaternos:
-							print(irmaosMaternos)
-							for i in irmaosMaternos:
-								irmoum = re.split(r',',i)[0]
-								irmoums = re.split(r' e ',irmoum)
-								for i in irmoums:
+							semvirgulas = re.split(r',',irmaosMaternos[0])
+							tds = []
+							for i in semvirgulas:
+								semvirgulaseseme = re.split(r' e ',i)
+								for i in semvirgulaseseme:
 									if i[0] == ' ':
-										irmaosMat.append(i[1:])
+										tds.append(i[1:])
 									else:
-										irmaosMat.append(i)	
-
+										tds.append(i)
+							tds.pop()			
+							irmaosMat.extend(tds)
+							if mae in maesefilhos:
+								maesefilhos[mae].extend(irmaosMat)
+							else:
+								maesefilhos[mae] = irmaosMat	
+			
 						if irmaoPaterno:
 							for i in irmaoPaterno:
 								i.strip()
@@ -235,7 +285,23 @@ def func():
 								else:
 									irmaosPat.append(irmao)
 
-										
+						if irmaosPaternos:
+							semvirgulas = re.split(r',',irmaosPaternos[0])
+							tds = []
+							for i in semvirgulas:
+								semvirgulaseseme = re.split(r' e ',i)
+								for i in semvirgulaseseme:
+									if i[0] == ' ':
+										tds.append(i[1:])
+									else:
+										tds.append(i)
+							tds.pop()
+							irmaosPat.extend(tds)
+							if pai in paisefilhos:
+								paisefilhos[pai].extend(irmaosPat)
+							else:
+								paisefilhos[pai] = irmaosPat		
+															
 	f.close()
 
 
