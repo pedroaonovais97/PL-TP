@@ -1,5 +1,6 @@
 import re
 import sys
+import operator
 
 listagem = []
 anosList = []
@@ -18,8 +19,8 @@ seculo18Ultimo = {}
 seculo19Ultimo = {}
 seculo20Ultimo = {}
 parentesEl = {}
-maesefilhos = {}
-paisefilhos = {}
+maesEfilhos = {}
+paisEfilhos = {}
 
 global ano
 global sec
@@ -102,6 +103,75 @@ def saveInfo(anoList, ano, sec, primeironome, ultimonome):
 			seculo20Ultimo[ultimonome] = 1
 
 
+def saveOne(parente,parenteAux,structParentes,paiOuMae):
+	for i in parente:
+		if i[0] == ' ':
+				parenteAux.append(i[1:])
+		else:
+			parenteAux.append(i)						
+							
+		if paiOuMae in structParentes:
+			for i in parenteAux:
+				if i in structParentes[paiOuMae]:
+					pass
+				else:
+					structParentes[paiOuMae].append(i)
+		else:
+			structParentes[paiOuMae] = parenteAux
+
+def saveMoreThanOne(parentes, parentesAux,structParentes, paiOuMae):
+	semVirgulas = re.split(r',',parentes[0])
+	tds = []
+	for i in semVirgulas:
+		semVirgulasEsemE = re.split(r' e ?',i)
+		for i in semVirgulasEsemE:
+			if i[0] == ' ':
+				tds.append(i[1:])
+			else:
+				tds.append(i)
+	tds.pop()
+	parentesAux.extend(tds)
+	if paiOuMae in structParentes:
+		for i in parentesAux:
+			if i in structParentes[paiOuMae]:
+				pass
+			else:
+				structParentes[paiOuMae].append(i)
+	else:
+		structParentes[paiOuMae] = parentesAux
+
+def saveFam(line, pr, completo, mae, pai):
+	familia = re.findall(r'(?!Doc\.danificado\.| )[,\w\ ]*(?:,Ti.s?(?: .aternos?|\.)*\.|,Irmaos?(?: .aternos?\.|\.|\.)|,Prim.s?(?: .aternos?)*\.|,Sobrinh.(?: .aterno)*\.)(?: *Proc\.\d+\.)*',line)
+	irmaoMaterno = re.findall(r'([a-zA-Z ]+),Irmao Materno\. Proc\.[0-9]+',line)
+	irmaoPaterno = re.findall(r'([a-zA-Z ]+),Irmao Paterno\. Proc\.[0-9]+',line)
+	irmaosMaternos = re.findall(r'([a-zA-Z\, ]+,Irmaos Maternos\.) Proc\.[0-9]+',line)
+	irmaosPaternos = re.findall(r'([a-zA-Z\, ]+,Irmaos Paternos\.) Proc\.[0-9]+',line)
+	irmao = re.findall(r'([a-zA-Z ])+,Irmao\. Proc\.[0-9]+',line)
+	irmaos = re.findall(r'([a-zA-Z ]+,Irmaos\. Proc\.[0-9]+)',line)
+	
+	irmaosMat = []
+	irmaosPat = []
+
+	if familia:
+		parentesEl[pr+completo] = familia
+				
+	if irmaoMaterno:
+		saveOne(irmaoMaterno, irmaosMat, maesEfilhos,mae)
+
+	if irmaosMaternos:
+		saveMoreThanOne(irmaosMaternos, irmaosMat, maesEfilhos, mae)
+
+	if irmaoPaterno:
+		saveOne(irmaoPaterno, irmaosPat, paisEfilhos,pai)	
+
+	if irmaosPaternos:
+		saveMoreThanOne(irmaosPaternos, irmaosPat, paisEfilhos, pai)
+
+	if irmaos:
+		saveMoreThanOne(irmaos, irmaosMat, maesEfilhos, mae)
+		saveMoreThanOne(irmaos, irmaosPat, paisEfilhos, pai)
+
+
 def func():
 	f = open('processos.xml')
 	next(f)
@@ -152,97 +222,9 @@ def func():
 				if g == '<pai>':
 					pai = m.group(5)
 				if g == '<obs>':
-					irmaosMat = []
-					irmaosPat = []
 					obsClose = re.search(r'(<\/obs>)',line)
 					if obsClose:
-						familia = re.findall(r'(?!Doc\.danificado\.| )[,\w\ ]*(?:,Ti.s?(?: .aternos?|\.)*\.|,Irmaos?(?: .aternos?\.|\.|\.)|,Prim.s?(?: .aternos?)*\.|,Sobrinh.(?: .aterno)*\.)(?: *Proc\.\d+\.)*',line)
-						irmaoMaterno = re.findall(r'([a-zA-Z ]+),Irmao Materno\. Proc\.[0-9]+',line)
-						irmaoPaterno = re.findall(r'([a-zA-Z ]+),Irmao Paterno\. Proc\.[0-9]+',line)
-						irmaosMaternos = re.findall(r'([a-zA-Z\, ]+,Irmaos Maternos\.) Proc\.[0-9]+',line)
-						irmaosPaternos = re.findall(r'([a-zA-Z\, ]+,Irmaos Paternos\.) Proc\.[0-9]+',line)
-						irmao = re.findall(r'([a-zA-Z ])+,Irmao\. Proc\.[0-9]+',line)
-						irmaos = re.findall(r'([a-zA-Z ]+,Irmaos\. Proc\.[0-9]+)',line)
-
-						if familia:
-							parentesEl[pr+completo] = familia
-							
-						if irmaoMaterno:
-							for i in irmaoMaterno:
-								if i[0] == ' ':
-									irmaosMat.append(i[1:])
-								else:
-									irmaosMat.append(i)						
-							
-							if mae in maesefilhos:
-								for i in irmaosMat:
-									if i in maesefilhos[mae]:
-										pass
-									else:
-										maesefilhos[mae].append(i)
-							else:
-								maesefilhos[mae] = irmaosMat										
-
-						if irmaosMaternos:
-							semvirgulas = re.split(r',',irmaosMaternos[0])
-							tds = []
-							for i in semvirgulas:
-								semvirgulaseseme = re.split(r' e ',i)
-								for i in semvirgulaseseme:
-									if i[0] == ' ':
-										tds.append(i[1:])
-									else:
-										tds.append(i)
-							tds.pop()
-							irmaosMat.extend(tds)
-							if mae in maesefilhos:
-								for i in irmaosMat:
-									if i in maesefilhos[mae]:
-										pass
-									else:
-										maesefilhos[mae].append(i)
-							else:
-								maesefilhos[mae] = irmaosMat
-
-						if irmaoPaterno:
-							for i in irmaoPaterno:
-								if i[0] == ' ':
-									irmaosPat.append(i[1:])
-								else:
-									irmaosPat.append(i)						
-							
-							if pai in paisefilhos:
-								for i in irmaosPat:
-									if i in paisefilhos[pai]:
-										pass
-									else:
-										paisefilhos[pai].append(i)
-							else:
-								paisefilhos[pai] = irmaosPat	
-
-						if irmaosPaternos:
-							semvirgulas = re.split(r',',irmaosPaternos[0])
-							tds = []
-							for i in semvirgulas:
-								semvirgulaseseme = re.split(r' e ',i)
-								for i in semvirgulaseseme:
-									if i[0] == ' ':
-										tds.append(i[1:])
-									else:
-										tds.append(i)
-							tds.pop()
-							irmaosPat.extend(tds)
-							if pai in paisefilhos:
-								for i in irmaosPat:
-									if i in paisefilhos[pai]:
-										pass
-									else:
-										paisefilhos[pai].append(i)
-							else:
-								paisefilhos[pai] = irmaosPat
-							
-							
-								
+						saveFam(line, pr, completo, mae, pai)						
 					else:
 						auxF = next(f)
 						line = line + auxF
@@ -254,92 +236,7 @@ def func():
 							line = line + auxF
 
 						line = re.sub(r'\n +',' ',line)
-						familia = re.findall(r'(?!Doc\.danificado\.| )[,\w\ ]*(?:,Ti.s?(?: .aternos?|\.)*\.|,Irmaos?(?: .aternos?\.|\.|\.)|,Prim.s?(?: .aternos?)*\.|,Sobrinh.(?: .aterno)*\.)(?: *Proc\.\d+\.)*',line)
-
-						irmaoMaterno = re.findall(r'([a-zA-Z ]+),Irmao Materno\. Proc\.[0-9]+',line)
-						irmaoPaterno = re.findall(r'([a-zA-Z ]+),Irmao Paterno\. Proc\.[0-9]+',line)
-						irmaosMaternos = re.findall(r'([a-zA-Z\, ]+,Irmaos Maternos\.) Proc\.[0-9]+',line)
-						irmaosPaternos = re.findall(r'([a-zA-Z\, ]+,Irmaos Paternos\.) Proc\.[0-9]+',line)
-						irmao = re.findall(r'([a-zA-Z ])+,Irmao\. Proc\.[0-9]+',line)
-						irmaos = re.findall(r'([a-zA-Z ]+,Irmaos\. Proc\.[0-9]+)',line)
-
-						if familia:
-							parentesEl[pr+completo] = familia
-						
-						if irmaoMaterno:
-							for i in irmaoMaterno:
-								if i[0] == ' ':
-									irmaosMat.append(i[1:])
-								else:
-									irmaosMat.append(i)						
-							
-							if mae in maesefilhos:
-								for i in irmaosMat:
-									if i in maesefilhos[mae]:
-										pass
-									else:
-										maesefilhos[mae].append(i)
-							else:
-								maesefilhos[mae] = irmaosMat		
-
-						if irmaosMaternos:
-							semvirgulas = re.split(r',',irmaosMaternos[0])
-							tds = []
-							for i in semvirgulas:
-								semvirgulaseseme = re.split(r' e ',i)
-								for i in semvirgulaseseme:
-									if i[0] == ' ':
-										tds.append(i[1:])
-									else:
-										tds.append(i)
-							tds.pop()			
-							irmaosMat.extend(tds)
-
-							if mae in maesefilhos:
-								for i in irmaosMat:
-									if i in maesefilhos[mae]:
-										pass
-									else:
-										maesefilhos[mae].append(i)
-							else:
-								maesefilhos[mae] = irmaosMat	
-			
-						if irmaoPaterno:
-							for i in irmaoPaterno:
-								if i[0] == ' ':
-									irmaosPat.append(i[1:])
-								else:
-									irmaosPat.append(i)						
-							
-							if pai in paisefilhos:
-								for i in irmaosPat:
-									if i in paisefilhos[pai]:
-										pass
-									else:
-										paisefilhos[pai].append(i)
-							else:
-								paisefilhos[pai] = irmaosPat
-
-						if irmaosPaternos:
-							semvirgulas = re.split(r',',irmaosPaternos[0])
-							tds = []
-							for i in semvirgulas:
-								semvirgulaseseme = re.split(r' e ',i)
-								for i in semvirgulaseseme:
-									if i[0] == ' ':
-										tds.append(i[1:])
-									else:
-										tds.append(i)
-							tds.pop()
-							irmaosPat.extend(tds)
-							if pai in paisefilhos:
-								for i in irmaosPat:
-									if i in paisefilhos[pai]:
-										pass
-									else:
-										paisefilhos[pai].append(i)
-							else:
-								paisefilhos[pai] = irmaosPat		
+						saveFam(line, pr, completo, mae, pai)		
 															
 	f.close()
 
@@ -434,7 +331,6 @@ def exC():
 	regex = r','
 	for nome,familia in parentesEl.items():
 		if familia:
-			print(familia)
 			fam += 1
 		for frase in familia:
 			
@@ -464,14 +360,43 @@ def exC():
 	print("Número de Tios eclesiásticos: ", tio)
 	print("Número de Primos eclesiásticos: ", primo)
 
+	menu()
+
 def exD():
+	print("\nMães com mais filhos candidatos:")
+	for k in sorted(maesEfilhos, key=lambda k: len(maesEfilhos[k]), reverse=True)[:5]:
+		print(k,len(maesEfilhos[k]),"filhos:\n", maesEfilhos[k])
+
+	
+	print("\nPais com mais filhos candidatos:")
+	for k in sorted(paisEfilhos, key=lambda k: len(paisEfilhos[k]), reverse=True)[:5]:
+		print(k,len(paisEfilhos[k]),"filhos:\n", paisEfilhos[k])
+
+	cont = 0;
+	choice = input("Imprimir todos os pais com mais que um filho candidato?\n1:Sim\n2:Não\nPor favor escolha uma opção:")
+	if choice == "1":
+		for k in sorted(maesEfilhos, key=lambda k: len(maesEfilhos[k]), reverse=True):
+			if len(maesEfilhos[k]) > 1:
+				cont += 1
+				print(k,len(maesEfilhos[k]),"filhos:\n", maesEfilhos[k])
+				if cont == 10:
+					input("Pressione Enter para continuar...")
+					cont = 0
+		cont = 0
+		for k in sorted(paisEfilhos, key=lambda k: len(paisEfilhos[k]), reverse=True):
+			if len(paisEfilhos[k]) > 1:
+				cont += 1
+				print(k,len(paisEfilhos[k]),"filhos:\n", paisEfilhos[k])
+				if cont == 10:
+					input("Pressione Enter para continuar...")
+					cont = 0
 	menu()
 
 def menu():
     print("**Processador de Pessoas listadas nos Róis de Confessados**")
     print()
 
-    choice = input("A: exA \nB: exB\nC: exC \nS: Sair\nPor favor escolha uma opção:")
+    choice = input("A: exA \nB: exB\nC: exC\nD: exD \nS: Sair\nPor favor escolha uma opção:")
 
     if choice == "A" or choice =="a":
         exA()
@@ -479,6 +404,8 @@ def menu():
         exB()
     elif choice == "C" or choice =="c":
         exC()
+    elif choice == "D" or choice =="d":
+        exD()
     elif choice=="S" or choice=="s":
         sys.exit
     else:
