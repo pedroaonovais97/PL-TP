@@ -11,14 +11,8 @@ seculos = {}
 pnome = {}
 unome = {}
 nomecompleto = {}
-seculo17 = {}
-seculo18 = {}
-seculo19 = {}
-seculo20 = {}
-seculo17Ultimo = {}
-seculo18Ultimo = {}
-seculo19Ultimo = {}
-seculo20Ultimo = {}
+seculosList = {}
+seculosUlt = {}
 parentesEl = {}
 maesEfilhos = {}
 paisEfilhos = {}
@@ -60,7 +54,31 @@ def saveInfo(anoList, ano, sec, primeironome, ultimonome):
 	else:
 		unome[ultimonome] = 1
 
-	if sec == 17 :
+	if sec in seculosList:
+		if primeironome in seculosList[sec]:
+			seculosList[sec][primeironome] += 1
+		else:
+			seculosList[sec][primeironome] = 1
+		
+	else:
+		newSecNome = {}
+		newSecNome[primeironome] = 1
+		seculosList[sec] = newSecNome
+
+
+	if sec in seculosUlt:
+		if ultimonome in seculosUlt[sec]:
+			seculosUlt[sec][ultimonome] += 1
+		else:
+			seculosUlt[sec][ultimonome] = 1
+		
+	else:
+		newSecUlt = {}
+		newSecUlt[ultimonome] = 1
+		seculosUlt[sec] = newSecUlt
+
+
+	'''if sec == 17 :
 		if primeironome in seculo17:
 			seculo17[primeironome] += 1
 		else:
@@ -102,7 +120,7 @@ def saveInfo(anoList, ano, sec, primeironome, ultimonome):
 		if ultimonome in seculo20Ultimo:
 			seculo20Ultimo[ultimonome] += 1
 		else:
-			seculo20Ultimo[ultimonome] = 1
+			seculo20Ultimo[ultimonome] = 1'''
 
 
 def saveOne(parente,parenteAux,structParentes,paiOuMae):
@@ -292,16 +310,6 @@ def exA():
 def exB():
 	sorted_pnome = dict(sorted(pnome.items(), key=lambda p:p[1],reverse = True))
 	sorted_unome = dict(sorted(unome.items(), key=lambda p:p[1],reverse = True))
-	
-	sorted_pnome_secolo17 = dict(sorted(seculo17.items(), key=lambda p:p[1],reverse = True))
-	sorted_pnome_secolo18 = dict(sorted(seculo18.items(), key=lambda p:p[1],reverse = True))
-	sorted_pnome_secolo19 = dict(sorted(seculo19.items(), key=lambda p:p[1],reverse = True))
-	sorted_pnome_secolo20 = dict(sorted(seculo20.items(), key=lambda p:p[1],reverse = True))
-	sorted_unome_secolo17 = dict(sorted(seculo17Ultimo.items(), key=lambda p:p[1],reverse = True))
-	sorted_unome_secolo18 = dict(sorted(seculo18Ultimo.items(), key=lambda p:p[1],reverse = True))
-	sorted_unome_secolo19 = dict(sorted(seculo19Ultimo.items(), key=lambda p:p[1],reverse = True))
-	sorted_unome_secolo20 = dict(sorted(seculo20Ultimo.items(), key=lambda p:p[1],reverse = True))
-	anosList.sort()
 
 	print('\n\nPRIMEIROS NOMES:')
 	print(sorted_pnome)
@@ -315,23 +323,19 @@ def exB():
 	print(list(sorted_pnome.keys())[:5])
 	print('\n\nMAX 5 ULTIMO NOME')
 	print(list(sorted_unome.keys())[:5])
-	print('\n\nMAX 5 PRIMEIRO NOME SECULO 17')
-	print(list(sorted_pnome_secolo17.keys())[:5])
-	print('\n\nMAX 5 PRIMEIRO NOME SECULO 18')
-	print(list(sorted_pnome_secolo18.keys())[:5])
-	print('\n\nMAX 5 PRIMEIRO NOME SECULO 19')
-	print(list(sorted_pnome_secolo19.keys())[:5])
-	print('\n\nMAX 5 PRIMEIRO NOME SECULO 20')
-	print(list(sorted_pnome_secolo20.keys())[:5])
-	print('\n\nMAX 5 ULTIMO NOME SECULO 17')
-	print(list(sorted_unome_secolo17.keys())[:5])
-	print('\n\nMAX 5 ULTIMO NOME SECULO 18')
-	print(list(sorted_unome_secolo18.keys())[:5])
-	print('\n\nMAX 5 ULTIMO NOME SECULO 19')
-	print(list(sorted_unome_secolo19.keys())[:5])
-	print('\n\nMAX 5 ULTIMO NOME SECULO 20')
-	print(list(sorted_unome_secolo20.keys())[:5])
 
+	i = 0
+	while i < 22:
+		if i in seculosList:
+			sorted_pnome_seculo = dict(sorted(seculosList[i].items(), key=lambda p:p[1],reverse = True))
+			sorted_unome_seculo = dict(sorted(seculosUlt[i].items(), key=lambda p:p[1],reverse = True))
+			print("\n\nMAX 5 PRIMEIRO NOME SECULO ", i)
+			print(list(sorted_pnome_seculo.keys())[:5])
+			print("\n\nMAX 5 ULTIMO NOME SECULO ", i)
+			print(list(sorted_unome_seculo.keys())[:5])
+		i +=1
+
+	anosList.sort()
 	print('\n\n',anosList)
 
 	menu()
