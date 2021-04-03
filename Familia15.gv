@@ -1,4 +1,0 @@
-digraph G {
-	"Joao Nepomuceno Castro Marinho" -> "Joao Nepomuceno Castro Marinho Junior" [label=Pai]
-	"Maria Joaquina Coutinho" -> "Joao Nepomuceno Castro Marinho Junior" [label="Mãe"]
-}

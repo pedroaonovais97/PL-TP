@@ -1,4 +1,0 @@
-digraph G {
-	"Antonio Teixeira Nobrega" -> "Jose Teixeira Nobrega" [label=Pai]
-	"Ana Assuncao" -> "Jose Teixeira Nobrega" [label="Mãe"]
-}

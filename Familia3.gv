@@ -1,4 +1,0 @@
-digraph G {
-	"Manuel Jose Duarte Senra" -> "Antonio Duarte Senra" [label=Pai]
-	"Rosa Miranda" -> "Antonio Duarte Senra" [label="Mãe"]
-}

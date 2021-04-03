@@ -1,4 +1,0 @@
-digraph G {
-	"Antonio Manuel Fernandes Morais" -> "Jose Pires Ferreira Morais" [label=Pai]
-	"Maria Pires Ferreira" -> "Jose Pires Ferreira Morais" [label="Mãe"]
-}

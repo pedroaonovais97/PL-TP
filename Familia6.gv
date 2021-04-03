@@ -1,4 +1,0 @@
-digraph G {
-	"Jose Maria Ramalho" -> "Joao Batista Ramalho" [label=Pai]
-	"Josefa Rosa Ramalho" -> "Joao Batista Ramalho" [label="Mãe"]
-}

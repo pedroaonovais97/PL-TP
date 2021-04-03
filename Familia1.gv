@@ -1,4 +1,0 @@
-digraph G {
-	"Antonio Alves Barroso" -> "Abel Alves Barroso" [label=Pai]
-	"Maria Jose Alvares Barroso" -> "Abel Alves Barroso" [label="Mãe"]
-}
