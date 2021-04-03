@@ -1,0 +1,4 @@
+digraph G {
+	"Francisco Lopes Calheiros" -> "Jose Pedro Lopes Calheiros" [label=Pai]
+	"Rosa Maria" -> "Jose Pedro Lopes Calheiros" [label="Mãe"]
+}

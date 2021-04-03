@@ -1,0 +1,4 @@
+digraph G {
+	"Alexandre Rebelo Macedo" -> "Valentim Ribeiro Goncalves" [label=Pai]
+	"Felicia Costa Peixoto" -> "Valentim Ribeiro Goncalves" [label="Mãe"]
+}

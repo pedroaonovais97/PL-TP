@@ -1,0 +1,4 @@
+digraph G {
+	"Jose Joaquim Fernandes Vaz" -> "Goncalo Joaquim Fernandes Vaz" [label=Pai]
+	"Antonia Barbosa" -> "Goncalo Joaquim Fernandes Vaz" [label="Mãe"]
+}

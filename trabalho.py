@@ -1,6 +1,7 @@
 import re
 import sys
 import operator
+from graphviz import Digraph
 
 listagem = []
 anosList = []
@@ -21,6 +22,7 @@ seculo20Ultimo = {}
 parentesEl = {}
 maesEfilhos = {}
 paisEfilhos = {}
+novodicionario = {}
 
 global ano
 global sec
@@ -152,30 +154,33 @@ def saveFam(line, pr, completo, mae, pai):
 	irmaosMat = []
 	irmaosPat = []
 
-	if familia:
+	if familia and not pr+completo in parentesEl:
 		parentesEl[pr+completo] = familia
 				
-	if irmaoMaterno:
-		saveOne(irmaoMaterno, irmaosMat, maesEfilhos,mae)
+		if irmaoMaterno:
+			saveOne(irmaoMaterno, irmaosMat, maesEfilhos,mae)
 
-	if irmaosMaternos:
-		saveMoreThanOne(irmaosMaternos, irmaosMat, maesEfilhos, mae)
+		if irmaosMaternos:
+			saveMoreThanOne(irmaosMaternos, irmaosMat, maesEfilhos, mae)
 
-	if irmaoPaterno:
-		saveOne(irmaoPaterno, irmaosPat, paisEfilhos,pai)	
+		if irmaoPaterno:
+			saveOne(irmaoPaterno, irmaosPat, paisEfilhos,pai)	
 
-	if irmaosPaternos:
-		saveMoreThanOne(irmaosPaternos, irmaosPat, paisEfilhos, pai)
+		if irmaosPaternos:
+			saveMoreThanOne(irmaosPaternos, irmaosPat, paisEfilhos, pai)
 
-	if irmaos:
-		saveMoreThanOne(irmaos, irmaosMat, maesEfilhos, mae)
-		saveMoreThanOne(irmaos, irmaosPat, paisEfilhos, pai)
+		if irmaos:
+			saveMoreThanOne(irmaos, irmaosMat, maesEfilhos, mae)
+			saveMoreThanOne(irmaos, irmaosPat, paisEfilhos, pai)
 
 
 def func():
 	f = open('processos.xml')
 	next(f)
-
+	mae = ''
+	pai = ''
+	anoList = 0
+	completo = ''
 	contador = 1
 	iguais = 0
 	anoList = sec = ano = None
@@ -190,7 +195,6 @@ def func():
 			listagem.append(pr)
 
 		contador += 1	
-		#print(contador,'->',m.groups())
 		for g in m.groups():
 			if g is None:
 				pass	
@@ -218,7 +222,6 @@ def func():
 						saveInfo(anoList, ano, sec, primeironome, ultimonome)
 				if g == '<mae>':
 					mae = m.group(5)
-
 				if g == '<pai>':
 					pai = m.group(5)
 				if g == '<obs>':
@@ -236,8 +239,18 @@ def func():
 							line = line + auxF
 
 						line = re.sub(r'\n +',' ',line)
-						saveFam(line, pr, completo, mae, pai)		
-															
+						saveFam(line, pr, completo, mae, pai)
+					l = []
+					l.append(mae)
+					l.append(completo)
+					l.append(anoList)
+					novodicionario[pai] = l	
+				if g == '<obs/>':
+					l = []
+					l.append(mae)
+					l.append(completo)
+					l.append(anoList)
+					novodicionario[pai] = l																											
 	f.close()
 
 
@@ -392,11 +405,28 @@ def exD():
 					cont = 0
 	menu()
 
+def exE():
+	print('Ano a Pesquisar:')
+	x = input('>>')
+
+	contador = 0
+	for a,b in novodicionario.items():
+		if b[2] == int(x):
+			contador += 1
+			g = Digraph('G', filename='Familia' + str(contador) + '.gv')
+			if not a == '':
+				g.edge(a,b[1],'Pai')
+			if b[0]:	
+				g.edge(b[0],b[1],'Mãe')
+			g.view()
+
+	menu()	
+
 def menu():
     print("**Processador de Pessoas listadas nos Róis de Confessados**")
     print()
 
-    choice = input("A: exA \nB: exB\nC: exC\nD: exD \nS: Sair\nPor favor escolha uma opção:")
+    choice = input("A: exA \nB: exB\nC: exC\nD: exD\nE: exE \nS: Sair\nPor favor escolha uma opção:")
 
     if choice == "A" or choice =="a":
         exA()
@@ -406,6 +436,8 @@ def menu():
         exC()
     elif choice == "D" or choice =="d":
         exD()
+    elif choice == "E" or choice =="e":
+    	exE()    
     elif choice=="S" or choice=="s":
         sys.exit
     else:
