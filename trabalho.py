@@ -413,12 +413,16 @@ def exE():
 	for a,b in novodicionario.items():
 		if b[2] == int(x):
 			contador += 1
-			g = Digraph('G', filename='Familia' + str(contador) + '.gv')
-			if not a == '':
+			g = Digraph('G', filename='./output/Familia' + str(contador) + '.gv')
+			if a:
+				if a == b[1]:
+					b[1] = b[1] + " "
 				g.edge(a,b[1],'Pai')
-			if b[0]:	
+			if b[0]:
+				if b[0] == b[1]:
+					b[1] = b[1] + " "	
 				g.edge(b[0],b[1],'Mãe')
-			g.view()
+			g.render()
 
 	menu()	
 
