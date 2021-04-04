@@ -78,50 +78,6 @@ def saveInfo(anoList, ano, sec, primeironome, ultimonome):
 		seculosUlt[sec] = newSecUlt
 
 
-	'''if sec == 17 :
-		if primeironome in seculo17:
-			seculo17[primeironome] += 1
-		else:
-			seculo17[primeironome] = 1
-
-		if ultimonome in seculo17Ultimo:
-			seculo17Ultimo[ultimonome] += 1
-		else:
-			seculo17Ultimo[ultimonome] = 1		
-
-	if sec == 18 :
-		if primeironome in seculo18:
-			seculo18[primeironome] += 1
-		else:
-			seculo18[primeironome] = 1
-
-		if ultimonome in seculo18Ultimo:
-			seculo18Ultimo[ultimonome] += 1
-		else:
-			seculo18Ultimo[ultimonome] = 1	
-
-	if sec == 19 :
-		if primeironome in seculo19:
-			seculo19[primeironome] += 1
-		else:
-			seculo19[primeironome] = 1
-
-		if ultimonome in seculo19Ultimo:
-			seculo19Ultimo[ultimonome] += 1
-		else:
-			seculo19Ultimo[ultimonome] = 1	
-
-	if sec == 20 :
-		if primeironome in seculo20:
-			seculo20[primeironome] += 1
-		else:
-			seculo20[primeironome] = 1
-	
-		if ultimonome in seculo20Ultimo:
-			seculo20Ultimo[ultimonome] += 1
-		else:
-			seculo20Ultimo[ultimonome] = 1'''
-
 
 def saveOne(parente,parenteAux,structParentes,paiOuMae):
 	for i in parente:
